@@ -21,7 +21,11 @@
 
 (define statements 
   (bootstrap-movie-table))
+
 (define pool (get-connection-pool))
+
 (define dbc (connection-pool-lease pool))
+
 (force-thunks statements dbc)
+
 (disconnect dbc)
