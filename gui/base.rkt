@@ -11,24 +11,39 @@
     (frame:standard-menus-mixin
      (frame:register-group-mixin
       (frame:focus-table-mixin
-       (frame:basic-mixin
-        frame%)))))))
+       (frame:basic-mixin frame%)))))))
 
 (define app%
   (class app-frame%
-    (super-new)
-    (define status-panel null)
+    (init-field proc label)
+    (super-new (label label))
+    (define wrapper null)
     (define/override (make-root-area-container cls parent)
-      (set! status-panel
+      (set! wrapper
             (super make-root-area-container vertical-panel% parent))
-      (let ((root (make-object cls status-panel)))
-        (define test (new button% (label "test button") (parent root)))
-        (define msg (new message% (label "test message") (parent root)))
-        root))))
+      (proc parent wrapper))))
 
-(define app (new app% (label (application:current-app-name))))
 
-;(define field%
-;  (html-text-mixin text%))
+(define (fill root wrapper)
+  (define search-wrapper 
+    (new vertical-panel% 
+         (style (list 'border))
+         (border 10)
+         (alignment
+          (list 'center 'top))
+         (parent wrapper)))
+  (define font (make-object font% 50 "Courier" 'default))
+  (define search-query (new text-field% 
+                            (label "Search for Movies")
+                            (init-value "Search...")
+                            (style (list 'single 'vertical-label))
+                            (font font)
+                            (parent search-wrapper)))
+  
+  (send root enable #f)
+  ;(define search-button (new button% (label "Search for Movies") (parent search-wrapper)))
+  (send root maximize #t)
+  root)
 
+(define app (new app% (proc fill) (label (application:current-app-name))))
 (send app show #t)
