@@ -1,12 +1,12 @@
 #lang racket
 
 (require
- metacima/common/utils/base)
+ "base.rkt")
 
 (provide dbg)
 
-(define dbg? #f)
-;(define dbg? #t)
+(define dbg? #t)
+;(define dbg? #f)
 
 (define-syntax (dbg stx)
   (syntax-case stx ()
