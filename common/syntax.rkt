@@ -56,3 +56,8 @@
                #:extra-constructor-name 
                shadowed-constructor-name
                #:auto-value null)))))))
+
+(define-syntax (inc stx)
+  (syntax-case stx ()
+    ((_ var val)
+     #'(set! var (+ var val)))))
