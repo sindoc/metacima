@@ -4,7 +4,8 @@
  (for-syntax racket/list))
 
 (provide
- (all-defined-out))
+ (all-defined-out)
+ (for-syntax (all-defined-out)))
  
 (define-for-syntax (make-id stx template . ids)
   (datum->syntax 
@@ -61,3 +62,8 @@
   (syntax-case stx ()
     ((_ var val)
      #'(set! var (+ var val)))))
+
+(define-syntax (push stx)
+  (syntax-case stx ()
+    ((_ lst e)
+     #'(set! lst (cons e lst)))))

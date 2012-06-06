@@ -52,4 +52,6 @@
      lst)))
 
 (define (force-thunks thunks . args)
-  (for-each (λ (thunk) (apply thunk args)) thunks))
+  (if (list? thunks)
+      (map (λ (thunk) (apply thunk args)) thunks)
+      (apply thunks args)))

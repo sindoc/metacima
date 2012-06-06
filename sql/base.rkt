@@ -8,11 +8,16 @@
  (prefix-in : "private/base.rkt"))
 
 (provide 
+ (all-from-out db)
  (all-defined-out))
 
 (define (exec statement connection)
-  (dbg 'executing statement)
+  (dbg 'sql-exec statement)
   (query-exec connection (prepare connection statement)))
+
+(define (return statement)
+  (λ (connection . args)
+    (exec statement connection)))
 
 (define (primary-key? col)
   (eq? (list-ref col 2) 'primary-key))
@@ -21,6 +26,7 @@
          name  
          cols
          #:ignore-if-exists? (ignore-if-exists #t))
+  (dbg 'create-table cols)
   (define stmt
     (:create-table
      (make-create-table-statement
@@ -35,10 +41,9 @@
            (else
             (let ((options 
                    (flatten
-                    (sort
-                     (zip (cddr col) 2)
-                     (λ (a b)
-                       (keyword<? a b))))))
+                    (sort (zip (cddr col) 2)
+                          (λ (a b)
+                            (keyword<? a b))))))
               (define option-kws (filter keyword? options))
               (define option-vals (filter (λ (x) (not (keyword? x))) options))
               (dbg 'cool-1 options option-kws option-vals)
@@ -49,8 +54,7 @@
                (take col 2))))))
        cols)
       #:ignore-if-exists? ignore-if-exists)))
-  (λ (conn)
-    (exec stmt conn)))
+  (return stmt))
 
 (define (drop-table 
          name
@@ -60,16 +64,30 @@
      (make-drop-table-statement
       name
       #:only-if-exists? if-exists)))
-  (λ (conn)
-    (exec stmt conn)))
+  (return stmt))
 
 (define (insert
          table-name
-         #:populate-with-defaults? (default? #t))
+         (columns null)
+         (values null)
+         #:auto-populate? (auto-populate? #f))
   (define stmt
     (:insert
      (make-insert-statement
       table-name
-      #:populate-with-defaults? default? #t)))
-  (λ (conn)
-    (exec stmt conn)))
+      #:column-names
+      columns
+      #:column-values
+      values
+      #:auto-populate? auto-populate?)))
+  (return stmt))
+
+(define (update table-name column-name column-value row-filter)
+  (define stmt
+    (:update
+     (make-update-statement
+      table-name
+      #:column-name column-name
+      #:column-value column-value
+      #:row-filter row-filter)))
+  (return stmt))

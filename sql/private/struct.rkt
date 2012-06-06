@@ -30,18 +30,23 @@
    temporary?))
 
 (define-struct column-def
-  (column-name type-name column-constraint primary-key?)
+  (column-name type-name column-constraint primary-key? foreign-key-clause)
   #:constructor-name make-column-def-)
 
 (define (make-column-def 
          column-name 
          type-name
          #:primary-key? (primary-key #f)
-         #:constraint (column-constraint #f))
+         #:constraint (column-constraint #f)
+         #:fk (fk #f))
   (make-column-def- 
-   column-name type-name column-constraint primary-key))
+   column-name type-name column-constraint primary-key fk))
 
 (define-struct column-constraint (name))
+
+
+(define-struct foreign-key-clause
+  (foreign-table))
 
 
 ;; Source:
@@ -71,13 +76,13 @@
    column-names
    column-values
    fail-action
-   populate-with-defaults?)
+   auto-populate?)
   #:constructor-name make-insert-statement-)
 
 (define (make-insert-statement
          table-name
          (database-name #f)
-         #:populate-with-defaults? default?
+         #:auto-populate? auto-populate?
          #:fail-action (fail-action #f)
          #:column-names (column-names null)
          #:column-values (column-values null))
@@ -87,4 +92,31 @@
    column-names
    column-values
    fail-action
-   default?))
+   auto-populate?))
+
+;; Source:
+;; http://sqlite.org/lang_update.html
+
+(define-struct update-statement
+  (table-name
+   database-name
+   row-filter
+   column-name
+   column-value
+   fail-action)
+  #:constructor-name make-update-statement-)
+
+(define (make-update-statement
+         table-name
+         (database-name #f)
+         #:fail-action (fail-action #f)
+         #:column-name (column-name null)
+         #:column-value (column-value null)
+         #:row-filter (row-filter #f))
+  (make-update-statement-
+   table-name
+   database-name
+   row-filter
+   column-name
+   column-value
+   fail-action))
