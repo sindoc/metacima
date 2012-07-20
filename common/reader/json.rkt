@@ -1,7 +1,6 @@
 #lang racket
 
 (require 
- metacima/common/utils/debug
  metacima/common/utils/base
  metacima/common/utils/meta
  (prefix-in 
@@ -18,50 +17,41 @@
    
    #:visit-object-start 
    (λ (seed)
-     (dbg 'visit-object-start seed)
      '())
    
    #:visit-object-end
    (λ (seed parent-seed)
-     (dbg 'visit-object-end seed parent-seed)
      `(,seed ,@parent-seed))
 
    #:visit-member-start 
    (λ (name seed)
-     (dbg 'visit-member-start name seed)
      '())
    
    #:visit-member-end
    (λ (name seed parent-seed)
      (define key (string->symbol name))
      (define val (car seed))
-     (dbg 'visit-member-end name seed parent-seed)
      (set! parent-seed (append parent-seed (list (list key val))))
      parent-seed)
    
    #:visit-array-start  
    (λ (seed)
-     (dbg 'visit-array-start seed)
      '())
    
    #:visit-array-end
    (λ (seed parent-seed)
-     (dbg 'visit-array-end seed parent-seed)
      `(,seed ,@parent-seed))
    
    #:visit-string
    (λ (str seed)
-     (dbg 'visit-string str seed)
      `(,str ,@seed))
    
    #:visit-number
    (λ (num seed)
-     (dbg 'visit-number num seed)
      `(,num ,@seed))
    
    #:visit-constant
    (λ (name seed)
-     (dbg 'visit-constant name seed)
      `(,(case name
           ((true)  #t)
           ((false) #f)

@@ -25,11 +25,6 @@
       (run-promise)))
 
 (define statements null)
-
-(define-syntax (push stx)
-  (syntax-case stx ()
-    ((_ lst e)
-     #'(set! lst (cons e lst)))))
       
 (define (make-movie #:title title #:year year #:cast cast)
   (make-object model:movie% 'no-id-assigned-yet title year cast))

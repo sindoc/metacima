@@ -1,32 +1,39 @@
 #lang racket
 
 (require
- "../orm/base.rkt")
+ "syntax.rkt")
 
 (provide (all-defined-out))
 
+
+(define observable%
+  (class object%
+    (super-new)    
+    (define observers- null)
+    (define/public (add-observer observer)
+      (set! observers- (cons observer observers-)))
+    (define/public (get-observers) observers-)
+    (define/public (notify)
+      (for-each
+       (lambda (observer)
+         (send observer update this))
+       observers-))))
+
+(define model%
+  (class observable% 
+    (super-new)))
+
 (define person%
   (class model%
-    (init-model
-     (table 'people))
+    (init-model)
     (field* firstname)
-    (field* surname)))
-
-(define role%
-  (class model%
-    (init-model
-     (table 'roles))
-    (field* movie movie%)
-    (field* actor person% 
-            ((join many-to-many)))
-    (field* character person%)))
+    (field* lastname)
+    (field* middlename optional)))
 
 (define movie%
   (class model%
-    (init-model 
-     (table 'movies))
-    (field* title 'string)
-    (field* year 'integer)
-    (field* 
-     cast person% 
-     ((join one-to-many)))))
+    (init-model)
+    (field* title)
+    (field* year)
+    (field* runtime)
+  ))

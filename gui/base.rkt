@@ -1,7 +1,7 @@
 #lang racket
 
-(require framework)
-(require racket/gui/base)
+(require framework racket/gui/base "manager.rkt")
+
 
 (application:current-app-name "MetaCima")
 
@@ -23,27 +23,16 @@
             (super make-root-area-container vertical-panel% parent))
       (proc parent wrapper))))
 
+(define (init)
+  (define manager null)
+  (define (draw root wrapper)
+    (set! manager (make-screen-manager root wrapper)))
+  (define app (new app% (proc draw) (label (application:current-app-name))))
+  ((manager 'set-app!) app)
+  (define search-screen ((manager 'create-new-screen) create-search-screen))
+  (define movie-screen ((manager 'create-new-screen) create-movie-screen))
+  ((manager 'set-home!) movie-screen)
+  ((manager 'set-search!) search-screen)
+  (manager 'start))
 
-(define (fill root wrapper)
-  (define search-wrapper 
-    (new vertical-panel% 
-         (style (list 'border))
-         (border 10)
-         (alignment
-          (list 'center 'top))
-         (parent wrapper)))
-  (define font (make-object font% 50 "Courier" 'default))
-  (define search-query (new text-field% 
-                            (label "Search for Movies")
-                            (init-value "Search...")
-                            (style (list 'single 'vertical-label))
-                            (font font)
-                            (parent search-wrapper)))
-  
-  (send root enable #f)
-  ;(define search-button (new button% (label "Search for Movies") (parent search-wrapper)))
-  (send root maximize #t)
-  root)
-
-(define app (new app% (proc fill) (label (application:current-app-name))))
-(send app show #t)
+(init)
